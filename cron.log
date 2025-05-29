@@ -1,0 +1,60 @@
+/home/jucanuro/projects/ism/reportes/data_manager.py:231: UserWarning: pandas only supports SQLAlchemy connectable (engine/connection) or database string URI or sqlite3 DBAPI2 connection. Other DBAPI2 objects are not tested. Please consider using SQLAlchemy.
+  df = pd.read_sql(consulta_sql, conexion, params=[fecha_inicio, fecha_fin])
+/home/jucanuro/projects/ism/reportes/data_manager.py:142: UserWarning: pandas only supports SQLAlchemy connectable (engine/connection) or database string URI or sqlite3 DBAPI2 connection. Other DBAPI2 objects are not tested. Please consider using SQLAlchemy.
+  df = pd.read_sql(consulta_sql, conexion, params=[fecha_inicio, fecha_fin])
+/home/jucanuro/projects/ism/reportes/data_manager.py:142: UserWarning: pandas only supports SQLAlchemy connectable (engine/connection) or database string URI or sqlite3 DBAPI2 connection. Other DBAPI2 objects are not tested. Please consider using SQLAlchemy.
+  df = pd.read_sql(consulta_sql, conexion, params=[fecha_inicio, fecha_fin])
+--- Iniciando actualización de datos ---
+Rango de carga: 2025-01-01 a 2025-05-29
+
+Obteniendo datos de Ventas DESDE 2025-01-01 HASTA 2025-05-29...
+[INFO] Conectando a Servidor 2 / TiendaKR...
+ Ejecutando consulta para Ventas Arica (Rango: 2025-01-01 a 2025-05-29)...
+💥 Ocurrió un error en la consulta de Ventas Arica: ('08S01', '[08S01] [Microsoft][ODBC Driver 18 for SQL Server]TCP Provider: Error code 0x274C (10060) (SQLGetData)')
+ Ejecutando consulta para Ventas Iquique (Rango: 2025-01-01 a 2025-05-29)...
+💥 Ocurrió un error en la consulta de Ventas Iquique: Execution failed on sql: 
+    SELECT 
+        'CHILE' AS PAIS, 'IQUIQUE' AS CIUDAD, DAY(CDT.FECHA) AS DIA, 
+        CASE WHEN MONTH(CDT.FECHA) = 1 THEN 'ENERO' WHEN MONTH(CDT.FECHA) = 2 THEN 'FEBRERO' WHEN MONTH(CDT.FECHA) = 3 THEN 'MARZO' WHEN MONTH(CDT.FECHA) = 4 THEN 'ABRIL' WHEN MONTH(CDT.FECHA) = 5 THEN 'MAYO' WHEN MONTH(CDT.FECHA) = 6 THEN 'JUNIO' WHEN MONTH(CDT.FECHA) = 7 THEN 'JULIO' WHEN MONTH(CDT.FECHA) = 8 THEN 'AGOSTO' WHEN MONTH(CDT.FECHA) = 9 THEN 'SEPTIEMBRE' WHEN MONTH(CDT.FECHA) = 10 THEN 'OCTUBRE' WHEN MONTH(CDT.FECHA) = 11 THEN 'NOVIEMBRE' WHEN MONTH(CDT.FECHA) = 12 THEN 'DICIEMBRE' END AS MES, 
+        YEAR(CDT.FECHA) AS AÑO, CDT.[ESTADO DOCUMENTO] AS ESTADO, CDT.[NUMERO DE DOCUMENTO] AS FACTURA, 
+        'VENTAS' AS TIPO, 'ENTREGADO' AS MOTIVO, CLD.cod_cliente AS codigo_cliente, C.NOMBRE AS CLIENTE,
+        CLD.ITEM AS SUCURSAL, CONCAT(CDT.CODCLIENTE, CLD.item) AS CODIGO_SUCURSAL, C.RUT, CLD.ruta, G.NOMBRE AS GIRO,
+        CLD.DIRECCION, V.NOMBRE AS VENDEDOR, D.NOMBRE AS DISTRIBUIDOR, PS.CATEGORIA, PS.MARCA, PS.FORMATO,
+        PS.SABOR,
+        SUM(DDT.CANTIDAD * CASE WHEN CDT.[LISTA PRECIO] = 1 AND DDT.descuento = 0 THEN PD.[CDIST MIN] WHEN CDT.[LISTA PRECIO] = 1 AND DDT.descuento > 0 THEN PD.[CDIST MAY] WHEN CDT.[LISTA PRECIO] = 2 AND DDT.descuento = 0 THEN PD.[CDIST MIN PROV] WHEN CDT.[LISTA PRECIO] = 2 AND DDT.descuento > 0 THEN PD.[CDIST MAY PROV] ELSE 0 END) AS COM_DISTRIBUIDOR,
+        SUM(DDT.CANTIDAD * CASE WHEN CDT.[LISTA PRECIO] = 1 AND DDT.descuento = 0 THEN PD.[CVEND MIN] WHEN CDT.[LISTA PRECIO] = 1 AND DDT.descuento > 0 THEN PD.[CVEND MAY] WHEN CDT.[LISTA PRECIO] = 2 AND DDT.descuento = 0 THEN PD.[CVEND MIN PROV] WHEN CDT.[LISTA PRECIO] = 2 AND DDT.descuento > 0 THEN PD.[CVEND MAY PROV] ELSE 0 END) AS COM_VENDEDOR,
+        SUM(DDT.CANTIDAD) AS DISPLAY, SUM(PD.MCUBICO * DDT.CANTIDAD * PD.CXBULTO) AS LITROS,
+        SUM(DDT.neto) AS NETO, SUM(DDT.arancel) AS ARANCEL, SUM(DDT.ila13) AS ILA13,
+        SUM(DDT.bruto) AS BRUTO, SUM(DDT.CANTIDAD * DDT.[PRECIO LISTA UNITARIO]) AS MONTO
+    FROM TiendaKR.dbo.CABECERADOCUMENTO CDT 
+    INNER JOIN TiendaKR.dbo.DETALLEDOCUMENTO as DDT ON CDT.[NUMERO DE DOCUMENTO]=DDT.[NUMERO DE DOCUMENTO] 
+    INNER JOIN TiendaKR.dbo.CLIENTES AS C ON CDT.CODCLIENTE=C.[CODIGO NUMERICO]
+    INNER JOIN TiendaKR.dbo.CLIENTES_DIR AS CLD ON C.[CODIGO NUMERICO] = CLD.cod_cliente AND CDT.[DIR CLIENTE] = cld.item
+    INNER JOIN TiendaKR.dbo.VENDEDOR AS V ON CDT.[CODIGO VENDEDOR] = V.CODIGO 
+    INNER JOIN TiendaKR.dbo.DISTRIBUIDOR AS D ON CDT.DISTRIBUIDOR = D.CODIGO 
+    INNER JOIN ZoftNetSVE.dbo.PRODUCTOSAP AS PS ON DDT.ESPECIFICO = PS.[CODIGO CHILE] 
+    INNER JOIN TiendaKR.dbo.PRODUCTO AS PD ON DDT.ESPECIFICO=PD.ESPECIFICO 
+    INNER JOIN TiendaKR.dbo.GIRO AS G ON C.GIRO=G.CODIGO 
+    WHERE CDT.[TIPO DE DOCUMENTO] ='FA' AND CDT.[ESTADO DOCUMENTO] IN('I','C') AND CDT.FECHA BETWEEN ? AND ?
+    GROUP BY cdt.[ESTADO DOCUMENTO], cdt.[NUMERO DE DOCUMENTO],CDT.FECHA,CLD.cod_cliente,C.NOMBRE,CLD.item, CLD.DIRECCION,V.NOMBRE,D.NOMBRE,PS.MARCA, PS.CATEGORIA, PS.FORMATO, PS.SABOR, PD.MCUBICO, PD.CXBULTO, CDT.[LISTA PRECIO], PD.[CDIST MIN], PD.[CDIST MAY], PD.[CDIST MIN PROV], PD.[CDIST MAY PROV], PD.[CVEND MIN], PD.[CVEND MAY], PD.[CVEND MIN PROV], PD.[CVEND MAY PROV], DDT.[PRECIO LISTA UNITARIO], C.RUT, CLD.ruta, G.NOMBRE, DDT.descuento, CDT.CODCLIENTE;
+
+('08S01', '[08S01] [Microsoft][ODBC Driver 18 for SQL Server]Communication link failure (0) (SQLExecDirectW)')
+unable to rollback
+No se encontraron datos de ventas para unir.
+Conexión (fetch_dashboard_data) cerrada.
+No se obtuvieron datos para DatosDashboard (Ventas). No se actualizó la tabla.
+
+Obteniendo datos de Rechazos DESDE 2025-01-01 HASTA 2025-05-29...
+[INFO] Conectando a Servidor 2 / TiendaKR...
+ Ejecutando consulta para Rechazos Arica (Rango: 2025-01-01 a 2025-05-29)...
+✅ ¡Consulta de Rechazos Arica exitosa! Se encontraron 9553 filas.
+ Ejecutando consulta para Rechazos Iquique (Rango: 2025-01-01 a 2025-05-29)...
+✅ ¡Consulta de Rechazos Iquique exitosa! Se encontraron 7738 filas.
+Total de filas de Rechazos consolidadas para el rango: 17291
+Conexión (fetch_rechazos_data) cerrada.
+Se obtuvieron 17291 filas para DatosRechazos.
+Limpiando tabla DatosRechazos...
+Tabla DatosRechazos limpiada.
+Preparando 17291 objetos de DatosRechazos para guardar...
+¡Actualización de DatosRechazos completada! Se guardaron 17291 registros.
+--- Proceso de actualización finalizado. ---

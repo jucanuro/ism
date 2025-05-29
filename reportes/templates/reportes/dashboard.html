@@ -1,0 +1,343 @@
+{% extends 'reportes/base.html' %}
+{% load crispy_forms_tags %}
+
+{% block title %}Dashboard Ventas Chile{% endblock %}
+
+{% block content %}
+<style>
+    /* Estilos adicionales para el dashboard (sin cambios aquí) */
+    .dashboard-header {
+        background-color: #f8f9fa; padding: 1.5rem; border-radius: 0.5rem;
+        margin-bottom: 0.5rem; box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+    }
+    .dashboard-header h1 { color: #28a745; margin-bottom: 1rem; font-size: 1.8rem; }
+    .filter-form label { font-size: 0.8rem; font-weight: 500; color: #495057; }
+    .filter-form .form-control, .filter-form .form-select { font-size: 0.85rem; padding: 0.375rem 0.75rem; }
+    .btn-corporate-primary { background-color: #28a745; border-color: #28a745; color: white; }
+    .btn-corporate-primary:hover { background-color: #218838; border-color: #1e7e34; color: white; }
+    .btn-corporate-secondary { background-color: #f8f9fa; border-color: #ced4da; color: #495057; }
+    .btn-corporate-secondary:hover { background-color: #e2e6ea; border-color: #adb5bd; color: #343a40; }
+    .btn-corporate-info { background-color: #e7f3ff; border-color: #cfe2ff; color: #084298; }
+    .btn-corporate-info:hover { background-color: #d0dff6; border-color: #b9d0f1; color: #063071; }
+    .chart-card, .table-card { border: none; box-shadow: 0 0.25rem 0.75rem rgba(0,0,0,0.07); border-radius: 0.5rem; margin-bottom: 1.5rem; }
+    .chart-card .card-body, .table-card .card-body { padding: 0.5rem; }
+    .chart-card .card-title { font-size: 1rem; font-weight: 600; color: #343a40; margin-bottom: 1rem; text-align: center; }
+    .table-dashboard th, .table-dashboard td { padding: 0.5rem; font-size: 0.8rem; vertical-align: middle; }
+    .table-dashboard thead th { background-color: #343a40; color: #fff; font-weight: 500; border-bottom-width: 0; }
+    .info-alert { background-color: #e6f7ff; border-color: #91d5ff; color: #005080; }
+
+    .dashboard-header-modernized {
+    background-color: #f8f9fa;
+    padding: 1.5rem 1.5rem;
+    border-radius: 0.375rem;
+    margin-bottom: 2rem;
+    border-left: 5px solid #0d6efd;
+}
+
+.dashboard-title {
+    font-size: 1.65rem;
+    font-weight: 600;
+    color: #212529;
+}
+
+.dashboard-subtitle {
+    font-size: 0.9rem;
+    font-weight: 400;
+}
+
+.filter-form-modernized .form-label {
+    font-size: 0.78rem;
+    font-weight: 500;
+    margin-bottom: 0.3rem;
+    color: #495057;
+}
+
+.filter-form-modernized .form-control,
+.filter-form-modernized .form-select {
+    font-size: 0.875rem;
+    padding-top: 0.4rem;
+    padding-bottom: 0.4rem;
+}
+
+.filter-form-modernized .form-control-sm,
+.filter-form-modernized .form-select-sm {
+    font-size: 0.8rem;
+    padding-top: 0.3rem;
+    padding-bottom: 0.3rem;
+}
+
+.filter-form-modernized div[id^="div_id_"] > label {
+    font-size: 0.78rem;
+    font-weight: 500;
+    margin-bottom: 0.3rem;
+    color: #495057;
+}
+
+.filter-fields-grid {
+    margin-bottom: 1rem;
+}
+
+.d-flex.gap-2 > .btn,
+.d-flex.gap-2 > a.btn {
+    font-weight: 500;
+    padding: 0.375rem 0.85rem;
+}
+
+.d-flex.gap-2 > .btn i,
+.d-flex.gap-2 > a.btn i {
+    font-size: 0.9em;
+    vertical-align: text-bottom;
+}
+
+.btn-outline-primary:hover,
+.btn-outline-secondary:hover,
+.btn-outline-success:hover {
+    color: #fff;
+}
+</style>
+<style>
+    :root {
+        --corporate-green: #28a745;
+        --corporate-red: #dc3545;
+        --corporate-white: #ffffff;
+        --border-light: #e0e0e0;
+        --table-header-bg: var(--corporate-green);
+        --table-header-text: var(--corporate-white);
+        --table-header-border: #1e7e34;
+    }
+
+    .corporate-table-card {
+        border: 1px solid var(--border-light);
+        box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+        border-radius: 0.3rem;
+    }
+
+    .corporate-table-header th {
+        background-color: var(--table-header-bg);
+        color: var(--table-header-text);
+        font-weight: 500;
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        border-bottom: 2px solid var(--table-header-border);
+        padding: 0.6rem 0.5rem;
+        white-space: nowrap;
+    }
+
+    .corporate-table td {
+        font-size: 0.78rem;
+        color: #495057;
+        vertical-align: middle;
+        padding: 0.5rem 0.5rem;
+        border-bottom: 1px solid #eff2f7;
+    }
+
+    .corporate-table tbody tr:last-child td {
+        border-bottom: none;
+    }
+    
+    .badge.bg-danger-soft {
+        background-color: rgba(220, 53, 69, 0.1);
+        color: var(--corporate-red);
+        font-weight: 500;
+        font-size: 0.7rem;
+        padding: 0.25em 0.5em;
+    }
+    .badge.bg-success-soft {
+        background-color: rgba(40, 167, 69, 0.1);
+        color: var(--corporate-green);
+        font-weight: 500;
+        font-size: 0.7rem;
+        padding: 0.25em 0.5em;
+    }
+
+    .pagination .page-item.active .page-link {
+        background-color: var(--corporate-green);
+        border-color: var(--corporate-green);
+        color: var(--corporate-white);
+    }
+    .pagination .page-link {
+        color: var(--corporate-green);
+        font-size: 0.85rem;
+    }
+    .pagination .page-link:hover {
+        color: #1a7431;
+    }
+    .pagination .page-item.disabled .page-link {
+        color: #6c757d;
+    }
+    .card-footer .pagination {
+        margin-bottom: 0;
+    }
+</style>
+<div class="dashboard-header-modernized shadow-sm">
+    <div class="container-fluid">
+        <div class="row mb-3 align-items-center">
+            <div class="col-md-6">
+                <h1 class="dashboard-title mb-0">Dashboard de Ventas Chile</h1>
+                <p class="dashboard-subtitle text-muted mb-0">Utilice los filtros para refinar los datos y visualizaciones.</p>
+            </div>
+            <div class="col-md-6 text-md-end mt-3 mt-md-0">
+                <form method="post" action="{% url 'actualizar_datos' %}" class="d-inline-block">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-sm btn-outline-primary">
+                        <i class="bi bi-arrow-clockwise me-1"></i> Actualizar Datos
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <form method="get" action="{% url 'dashboard' %}" id="filterForm" class="filter-form-modernized">
+            <div class="filter-fields-grid">
+                <div class="row g-2">
+                    <div class="col-lg-2 col-md-4 col-sm-6">{{ form.fecha_desde|as_crispy_field }}</div>
+                    <div class="col-lg-2 col-md-4 col-sm-6">{{ form.fecha_hasta|as_crispy_field }}</div>
+                    <div class="col-lg-2 col-md-4 col-sm-6">{{ form.ciudad|as_crispy_field }}</div>
+                    <div class="col-lg-2 col-md-4 col-sm-6">{{ form.vendedor|as_crispy_field }}</div>
+                    <div class="col-lg-2 col-md-4 col-sm-6">{{ form.marca|as_crispy_field }}</div>
+                    <div class="col-lg-2 col-md-4 col-sm-6">{{ form.estado_documento|as_crispy_field }}</div>
+                </div>
+            </div>
+            <hr class="my-3">
+            <div class="d-flex flex-wrap gap-2 justify-content-start align-items-center">
+                <button type="submit" class="btn btn-primary btn-sm">
+                    <i class="bi bi-filter me-1"></i> Aplicar Filtros
+                </button>
+                <a href="{% url 'dashboard' %}" class="btn btn-outline-secondary btn-sm">
+                    <i class="bi bi-eraser me-1"></i> Limpiar Filtros
+                </a>
+                <a href="{% url 'export_excel' %}?{{ query_params }}" class="btn btn-outline-success btn-sm ms-md-auto">
+                    <i class="bi bi-file-earmark-excel me-1"></i> Descargar Excel
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+
+{% if messages %}
+    {% for message in messages %}
+    <div class="alert alert-{{ message.tags }} alert-dismissible fade show mt-3" role="alert">
+        {{ message }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    {% endfor %}
+{% endif %}
+
+<div class="row mt-2 gy-4">
+    <div class="col-lg-6">
+        <div class="card shadow-sm"><div class="card-body">{{ chart_ciudad_html|safe }}</div></div>
+    </div>
+    <div class="col-lg-6">
+        <div class="card shadow-sm"><div class="card-body">{{ chart_marca_html|safe }}</div></div>
+    </div>
+</div>
+
+<div class="alert alert-light mt-4">
+    Mostrando página {{ page_obj.number }} de {{ page_obj.paginator.num_pages }}.
+    (Total de <strong>{{ total_rows }}</strong> registros según los filtros aplicados).
+</div>
+
+<div class="card corporate-table-card mt-4">
+    <div class="card-header bg-light py-2">
+        <h5 class="card-title mb-0 text-muted" style="font-size: 1rem;">Detalle de Registros</h5>
+    </div>
+    <div class="card-body table-responsive p-0">
+        <table class="table table-hover table-sm corporate-table mb-0">
+            <thead class="corporate-table-header">
+                <tr>
+                    {% for header in column_headers %}
+                        <th>{{ header }}</th>
+                    {% endfor %}
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in page_obj.object_list %}
+                <tr>
+                    {% for field_name in column_names_for_loop %}
+                        <td>
+                            {% if field_name == 'monto' %}
+                                {{ item.monto|floatformat:2 }}
+                            {% elif field_name == 'es_rechazado' %}
+                                {% if item.es_rechazado %}
+                                    <span class="badge bg-danger-soft">Sí</span>
+                                {% else %}
+                                    <span class="badge bg-success-soft">No</span>
+                                {% endif %}
+                            {% elif field_name == 'display' %}
+                                {{ item.display }}
+                            {% elif field_name == 'litros' %}
+                                {{ item.litros }}
+                            {% elif field_name == 'factura' %}
+                                {{ item.factura }}
+                            {% elif field_name == 'ciudad' %}
+                                {{ item.ciudad }}
+                            {% elif field_name == 'cliente' %}
+                                {{ item.cliente }}
+                            {% elif field_name == 'vendedor' %}
+                                {{ item.vendedor }}
+                            {% elif field_name == 'marca' %}
+                                {{ item.marca }}
+                            {% elif field_name == 'motivo' %}
+                                {{ item.motivo }}
+                            {% else %}
+                                {{ field_name }} 
+                            {% endif %}
+                        </td>
+                    {% endfor %}
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="{{ column_headers|length }}" class="text-center py-4 text-muted">
+                        No hay datos para mostrar con los filtros actuales.
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% if page_obj.has_other_pages %}
+    <div class="card-footer bg-light py-2">
+        <nav aria-label="Navegación de página">
+            <ul class="pagination justify-content-center mb-0">
+                {% if page_obj.has_previous %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page=1{% if query_params %}&amp;{{ query_params }}{% endif %}">&laquo; Primera</a>
+                    </li>
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if query_params %}&amp;{{ query_params }}{% endif %}">Anterior</a>
+                    </li>
+                {% else %}
+                    <li class="page-item disabled"><span class="page-link">&laquo; Primera</span></li>
+                    <li class="page-item disabled"><span class="page-link">Anterior</span></li>
+                {% endif %}
+
+                {% for i in page_obj.paginator.page_range %}
+                    {% if page_obj.number == i %}
+                        <li class="page-item active" aria-current="page"><span class="page-link">{{ i }}</span></li>
+                    {% elif i > page_obj.number|add:'-3' and i < page_obj.number|add:'3' %}
+                        <li class="page-item"><a class="page-link" href="?page={{ i }}{% if query_params %}&amp;{{ query_params }}{% endif %}">{{ i }}</a></li>
+                    {% elif i == page_obj.number|add:'-3' or i == page_obj.number|add:'3' %}
+                         <li class="page-item disabled"><span class="page-link">...</span></li>
+                    {% endif %}
+                {% endfor %}
+
+                {% if page_obj.has_next %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ page_obj.next_page_number }}{% if query_params %}&amp;{{ query_params }}{% endif %}">Siguiente</a>
+                    </li>
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}{% if query_params %}&amp;{{ query_params }}{% endif %}">Última &raquo;</a>
+                    </li>
+                {% else %}
+                    <li class="page-item disabled"><span class="page-link">Siguiente</span></li>
+                    <li class="page-item disabled"><span class="page-link">Última &raquo;</span></li>
+                {% endif %}
+            </ul>
+        </nav>
+    </div>
+    {% endif %}
+</div>
+
+
+
+{% endblock %}
