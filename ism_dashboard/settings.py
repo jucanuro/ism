@@ -17,18 +17,21 @@ from pathlib import Path
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-load_dotenv(os.path.join(BASE_DIR, '.env'))
+dotenv_path = os.path.join(BASE_DIR, '.env')
+load_dotenv(dotenv_path=dotenv_path)
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = "django-insecure-mt(s%4e9ts!_bsa%v*6@os-&*cmg0#bj2q$b95)upt@c2==bs("
+SECRET_KEY = os.getenv('DJANGO_SECRET_KEY')
+if not SECRET_KEY:
+    raise ValueError("No DJANGO_SECRET_KEY set for Django application. Check your .env file.")
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.getenv('DJANGO_DEBUG', 'True') == 'True'
 
 ALLOWED_HOSTS_STRING = os.getenv('DJANGO_ALLOWED_HOSTS', '127.0.0.1,localhost')
-ALLOWED_HOSTS = [host.strip() for host in ALLOWED_HOSTS_STRING.split(',')]
+ALLOWED_HOSTS = [host.strip() for host in ALLOWED_HOSTS_STRING.split(',') if host.strip()]
 
 
 
@@ -41,10 +44,11 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
-    
+
     'reportes',
     'crispy_forms',
     'crispy_bootstrap5',
+    'django_q',
 ]
 
 MIDDLEWARE = [
@@ -83,15 +87,16 @@ WSGI_APPLICATION = "ism_dashboard.wsgi.application"
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'ism',        
-        'USER': 'jucanuro',          
-        'PASSWORD': 'Elverde2050@@**1988', 
-        'HOST': 'localhost',            
-        'PORT': '5432',                 
+        'ENGINE': os.getenv('DB_ENGINE', 'django.db.backends.postgresql'),
+        'NAME': os.getenv('DB_NAME'),
+        'USER': os.getenv('DB_USER'),
+        'PASSWORD': os.getenv('DB_PASSWORD'),
+        'HOST': os.getenv('DB_HOST', 'localhost'),
+        'PORT': os.getenv('DB_PORT', '5432'),
     }
 }
-
+if not all([DATABASES['default']['NAME'], DATABASES['default']['USER'], DATABASES['default']['PASSWORD'], DATABASES['default']['HOST']]):
+    raise ValueError("Database configuration is incomplete. Check .env file variables (DB_NAME, DB_USER, DB_PASSWORD, DB_HOST).")
 
 # Password validation
 # https://docs.djangoproject.com/en/4.2/ref/settings/#auth-password-validators
@@ -141,3 +146,14 @@ CRISPY_TEMPLATE_PACK = "bootstrap5"
 LOGIN_URL = 'login'
 LOGIN_REDIRECT_URL = 'dashboard'
 LOGOUT_REDIRECT_URL = 'login'
+
+Q_CLUSTER = {
+    'name': 'ism_q_cluster',
+    'workers': 2,
+    'timeout': 180, 
+    'retry': 190,
+    'queue_limit': 50,
+    'bulk': 10,
+    'orm': 'default',
+    'sync': os.getenv('DJANGO_DEBUG', 'True').lower() == 'true', 
+}
