@@ -2,5 +2,7 @@
 *.env
 db.sqlite3
 db.sqlite3-journal
-venv/
-.venv/
+venv
+.venv
+*venv
+.DS_Store
