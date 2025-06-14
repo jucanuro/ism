@@ -1,8 +1,87 @@
+# Archivos y directorios de entornos virtuales
+# Ignora el directorio venv estándar
+venv/
+# Ignora cualquier directorio que termine en .venv/ (para compatibilidad con algunas IDEs o herramientas)
+*.venv/
+
+# Archivos de configuración de entorno
+# Archivos .env que contienen variables de entorno (NUNCA deben subirse)
 .env
+# Patrón para otros archivos de entorno
 *.env
+
+# Archivos de base de datos
+# Base de datos SQLite local
 db.sqlite3
+# Archivos de journal de SQLite
 db.sqlite3-journal
-venv
-.venv
-*venv
+
+# Archivos de Python y de caché
+# Directorios de caché de Python bytecode
+__pycache__/
+# Archivos compilados de Python (bytecode)
+*.pyc
+# Archivos de caché de pip
+.pip/
+# Archivos de distribución de Python
+*.egg-info/
+*.whl
+.Python
+
+# Directorios para archivos estáticos y de medios (producción)
+# Directorio donde Django recolecta archivos estáticos para servir en producción
+static_root/
+# Directorio donde Django guarda archivos subidos por usuarios
+media/
+
+# Archivos de macOS
+# Archivo de metadatos de macOS
 .DS_Store
+
+# Configuraciones y caché de IDEs y editores de código
+# Configuración de Visual Studio Code
+.vscode/
+# Configuración de PyCharm/IntelliJ
+.idea/
+# Archivos de Sublime Text
+*.sublime-project
+*.sublime-workspace
+# Archivos de Vim
+*.swp
+*.swo
+*.swn
+
+# Archivos de logs
+*.log
+!debug.log # Ejemplo: si quieres mantener un log específico pero ignorar los demás
+
+# Archivos de testing
+.pytest_cache/
+.coverage
+
+# Archivos específicos de Docker
+# Archivos de build de Docker
+.dockerignore
+Dockerfile.bak # Archivos de backup de Dockerfile
+
+# Otros archivos temporales o generados
+# Copias de seguridad de editores
+*~
+# Archivos de swaps de editores
+\#*#
+.#*
+*.bak
+*.swp
+
+# Archivos de volcado de memoria
+*.core
+
+# Archivos de npm (si usas Node.js para frontend)
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Archivos de dependencias bloqueadas (si no los quieres en el control de versiones)
+# Pipenv (si usas en lugar de pip)
+Pipfile.lock
