@@ -1,3 +1,4 @@
+# ism/reportes/views.py
 from django.shortcuts import render, redirect
 from django.contrib import messages
 from django.core.management import call_command
@@ -6,11 +7,16 @@ from .models import DatosDashboard, DatosRechazos
 from .forms import DashboardFilterForm
 from django.db.models import Sum, Exists, OuterRef, Value, Case, When, IntegerField, Q
 import pandas as pd
-from datetime import date
+from datetime import date, datetime # Importar datetime para isoformat
 from django.core.paginator import Paginator
-from django.http import HttpResponse
+from django.http import HttpResponse, JsonResponse # Importar JsonResponse
 import io
 import plotly.express as px
+
+# Importaciones para SQS
+import boto3
+from django.conf import settings # Para acceder a las configuraciones de AWS en settings.py
+import json # Para manejar los datos JSON de la solicitud y el mensaje SQS
 
 # Mapeo de meses a números
 MONTH_TO_NUMBER = {
@@ -240,6 +246,8 @@ def reporte_rechazos_view(request):
     }
     return render(request, 'reportes/rechazos.html', context)
 
+
+# *** VISTA ANTIGUA PARA EXPORTACIÓN DIRECTA (AHORA COMENTADA/PARA ELIMINAR) ***
 def export_excel_view(request):
     form = DashboardFilterForm(request.GET or None)
     
@@ -405,6 +413,7 @@ def export_rechazos_excel_view(request): # Esta es la función para descargar SO
     filename = f"reporte_rechazos_{date.today().strftime('%Y%m%d')}.xlsx"
     response['Content-Disposition'] = f'attachment; filename="{filename}"'
     return response
+
 # Función corregida para exportar ventas y rechazos juntos
 def export_ventas_y_rechazos_juntos_excel_view(request):
     form = DashboardFilterForm(request.GET or None)

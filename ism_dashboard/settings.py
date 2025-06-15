@@ -13,6 +13,7 @@ import os
 from pathlib import Path
 from dotenv import load_dotenv
 from pathlib import Path
+from decouple import config
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -26,6 +27,13 @@ load_dotenv(dotenv_path=dotenv_path)
 SECRET_KEY = os.getenv('DJANGO_SECRET_KEY')
 if not SECRET_KEY:
     raise ValueError("No DJANGO_SECRET_KEY set for Django application. Check your .env file.")
+
+# AWS SQS/S3 Configuration
+AWS_ACCESS_KEY_ID = config('AWS_ACCESS_KEY_ID', default='') # Leerá del .env local
+AWS_SECRET_ACCESS_KEY = config('AWS_SECRET_ACCESS_KEY', default='') # Leerá del .env local
+AWS_REGION_NAME = config('AWS_REGION_NAME', default='us-east-1') # Pon aquí tu región por defecto, si no está en .env
+SQS_QUEUE_URL = config('SQS_QUEUE_URL', default='') # Leerá del .env local
+S3_BUCKET_NAME = config('S3_BUCKET_NAME', default='') # Leerá del .env local
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.getenv('DJANGO_DEBUG', 'True') == 'True'
