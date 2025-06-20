@@ -8,6 +8,7 @@ Django==4.2.21
 django-crispy-forms==2.4
 django-picklefield==3.3
 django-q==1.3.9
+django-ses==4.4.0
 et_xmlfile==2.0.0
 git-filter-repo==2.47.0
 jmespath==1.0.1

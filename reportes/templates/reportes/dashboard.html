@@ -6,7 +6,19 @@
 
 {% block content %}
 <style>
-    /* Estilos adicionales para el dashboard (sin cambios aquí) */
+    /* VARIABLES CSS */
+    :root {
+        --corporate-green: #28a745;
+        /* Verde principal para branding */
+        --corporate-red: #dc3545;
+        --corporate-white: #ffffff;
+        --border-light: #e0e0e0;
+        --table-header-bg: var(--corporate-green);
+        --table-header-text: var(--corporate-white);
+        --table-header-border: #1e7e34;
+    }
+
+    /* ESTILOS GENERALES DEL DASHBOARD */
     .dashboard-header {
         background-color: #f8f9fa;
         padding: 1.5rem;
@@ -16,7 +28,8 @@
     }
 
     .dashboard-header h1 {
-        color: #28a745;
+        color: var(--corporate-green);
+        /* Usando la variable CSS */
         margin-bottom: 1rem;
         font-size: 1.8rem;
     }
@@ -34,8 +47,8 @@
     }
 
     .btn-corporate-primary {
-        background-color: #28a745;
-        border-color: #28a745;
+        background-color: var(--corporate-green);
+        border-color: var(--corporate-green);
         color: white;
     }
 
@@ -178,18 +191,8 @@
     .btn-outline-success:hover {
         color: #fff;
     }
-</style>
-<style>
-    :root {
-        --corporate-green: #28a745;
-        --corporate-red: #dc3545;
-        --corporate-white: #ffffff;
-        --border-light: #e0e0e0;
-        --table-header-bg: var(--corporate-green);
-        --table-header-text: var(--corporate-white);
-        --table-header-border: #1e7e34;
-    }
 
+    /* ESTILOS DE TABLA CORPORATIVA */
     .corporate-table-card {
         border: 1px solid var(--border-light);
         box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
@@ -258,6 +261,126 @@
     .card-footer .pagination {
         margin-bottom: 0;
     }
+
+    /* Estilos para el nuevo botón consolidado de exportación */
+    .btn-export-consolidated {
+        background-color: #0d6efd;
+        border-color: #0d6efd;
+        color: white;
+    }
+
+    .btn-export-consolidated:hover {
+        background-color: #0b5ed7;
+        border-color: #0a58ca;
+        color: white;
+    }
+
+    /* Estilo para el botón de Enviar Correo */
+    .btn-send-email {
+        background-color: var(--corporate-green);
+        border-color: var(--corporate-green);
+        color: white;
+    }
+
+    .btn-send-email:hover {
+        background-color: #218838;
+        border-color: #1e7e34;
+        color: white;
+    }
+
+    /* Estilos para los mensajes de alerta */
+    .custom-alert {
+        padding: 0.75rem 1.25rem;
+        margin-bottom: 1rem;
+        border: 1px solid transparent;
+        border-radius: 0.25rem;
+        font-size: 0.9rem;
+        animation: fadeInDown 0.5s ease-out;
+        /* Animación para que aparezca suavemente */
+    }
+
+    .custom-alert-success {
+        color: #0f5132;
+        background-color: #d1e7dd;
+        border-color: #badbcc;
+    }
+
+    .custom-alert-danger {
+        color: #842029;
+        background-color: #f8d7da;
+        border-color: #f5c2c7;
+    }
+
+    /* ESTILO MODAL CORPORATIVO (VERDE MEJORADO) */
+    .modal-header-corporate {
+        background-color: var(--corporate-green);
+        color: var(--corporate-white);
+        border-bottom: 1px solid #1e7e34;
+    }
+
+    .modal-header-corporate .btn-close {
+        /* Aseguramos que el botón de cerrar sea visible */
+        filter: invert(1);
+        /* Hace que el icono blanco sea visible en fondo oscuro */
+    }
+
+    .modal-content {
+        border-radius: 0.5rem;
+        /* Bordes redondeados para el modal */
+        overflow: hidden;
+        /* Asegura que el header redondeado se vea bien */
+    }
+
+    /* Mejora de diseño del input en el modal */
+    #modal_email_destino_input {
+        border-radius: 0.25rem;
+        border: 1px solid #ced4da;
+        padding: 0.5rem 0.75rem;
+        box-shadow: inset 0 1px 2px rgba(0, 0, 0, .075);
+    }
+
+    #modal_email_destino_input:focus {
+        border-color: #86b7fe;
+        outline: 0;
+        box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+    }
+
+    /* Animación de spinner */
+    @keyframes spinner-border {
+        to {
+            transform: rotate(360deg);
+        }
+    }
+
+    .spinner-border {
+        display: inline-block;
+        width: 1rem;
+        height: 1rem;
+        vertical-align: -0.125em;
+        border: 0.1em solid currentColor;
+        border-right-color: transparent;
+        border-radius: 50%;
+        animation: .75s linear infinite spinner-border;
+    }
+
+    .spinner-border-sm {
+        width: 0.8rem;
+        height: 0.8rem;
+        border-width: 0.1em;
+    }
+
+    /* Animación para alerts */
+    @keyframes fadeInDown {
+        from {
+            opacity: 0;
+            transform: translate3d(0, -20px, 0);
+        }
+
+        to {
+            opacity: 1;
+            transform: none;
+        }
+    }
 </style>
 <div class="dashboard-header-modernized shadow-sm">
     <div class="container-fluid">
@@ -296,21 +419,25 @@
                 <a href="{% url 'dashboard' %}" class="btn btn-outline-secondary btn-sm">
                     <i class="bi bi-eraser me-1"></i> Limpiar Filtros
                 </a>
-                <a href="{% url 'export_excel' %}?{{ query_params }}" class="btn btn-outline-success btn-sm ms-md-auto">
-                    <i class="bi bi-file-earmark-excel me-1"></i> Descargar Excel (Ventas)
+
+                {# BOTÓN CONSOLIDADO PARA EXPORTAR EXCEL #}
+                <a href="{% url 'exportar_excel_consolidado' %}?{{ query_params }}"
+                    class="btn btn-export-consolidated btn-sm ms-md-auto">
+                    <i class="bi bi-download me-1"></i> Exportar Datos (Excel)
                 </a>
-                <a href="{% url 'exportar_rechazos_excel' %}?{{ query_params }}" class="btn btn-outline-danger btn-sm">
-                    <i class="bi bi-file-earmark-excel me-1"></i> Descargar Excel (Rechazos)
-                </a>
-                {# Botón para exportar Ventas y Rechazos Juntos en hojas separadas #}
-                <a href="{% url 'exportar_ventas_y_rechazos_juntos' %}?{{ query_params }}"
-                    class="btn btn-outline-info btn-sm">
-                    <i class="bi bi-file-earmark-spreadsheet me-1"></i> Descargar Ventas y Rechazos
-                </a>
+
+                {# BOTÓN QUE ABRE EL MODAL PARA ENVIAR CORREO #}
+                <button type="button" class="btn btn-send-email btn-sm" data-bs-toggle="modal"
+                    data-bs-target="#emailModal">
+                    <i class="bi bi-envelope-fill me-1"></i> Enviar Reporte por Email
+                </button>
             </div>
         </form>
     </div>
 </div>
+
+{# Contenedor para mensajes dinámicos #}
+<div id="dynamicAlertPlaceholder"></div>
 
 {% if messages %}
 {% for message in messages %}
@@ -382,8 +509,7 @@
                         {% elif field_name == 'motivo' %}
                         {{ item.motivo }}
                         {% else %}
-                        {# Si el campo no tiene un manejo especial, imprime el valor directamente #}
-                        {{ item|getattr:field.name }}
+                        {{ item|getattr:field_name }}
                         {% endif %}
                     </td>
                     {% endfor %}
@@ -447,6 +573,39 @@
     {% endif %}
 </div>
 
+{# MODAL PARA ENVIAR REPORTE POR EMAIL #}
+<div class="modal fade" id="emailModal" tabindex="-1" aria-labelledby="emailModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header modal-header-corporate"> {# Usamos la clase personalizada #}
+                <h5 class="modal-title" id="emailModalLabel"><i class="bi bi-envelope-fill me-2"></i> Enviar Reporte por
+                    Email</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p class="text-muted">Ingresa la dirección de correo electrónico a la que deseas enviar el reporte Excel
+                    con los filtros aplicados actualmente.</p>
+                <div class="mb-3">
+                    <label for="modal_email_destino_input" class="form-label">Correo Electrónico:</label>
+                    <input type="email" class="form-control" id="modal_email_destino_input"
+                        placeholder="ejemplo@dominio.com" required>
+                    <div id="email_feedback" class="invalid-feedback">
+                        Por favor, introduce una dirección de correo electrónico válida.
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-corporate-primary" id="sendEmailFromModalBtn">
+                    <span id="sendEmailBtnText"><i class="bi bi-send-fill me-1"></i> Enviar Reporte</span>
+                    <span id="sendEmailSpinner" class="spinner-border spinner-border-sm" role="status"
+                        aria-hidden="true" style="display: none;"></span>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
 {% endblock %}
 
 {% block extra_js %}
@@ -455,17 +614,52 @@
 <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/es.js"></script>
 
-
 <script>
+    // **CAMBIO 1: Función para mostrar alertas dinámicas (Ya estaba, pero la reafirmo)**
+    function showCustomAlert(message, type) {
+        const alertPlaceholder = document.getElementById('dynamicAlertPlaceholder');
+        if (!alertPlaceholder) {
+            console.error("No se encontró el placeholder para las alertas dinámicas. ID: 'dynamicAlertPlaceholder'");
+            return;
+        }
+
+        // Limpiar cualquier alerta anterior para evitar acumulación
+        alertPlaceholder.innerHTML = '';
+
+        const alertDiv = document.createElement('div');
+        alertDiv.className = `custom-alert custom-alert-${type} alert-dismissible fade show mt-3`;
+        alertDiv.setAttribute('role', 'alert');
+        alertDiv.innerHTML = `
+            ${message}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        `;
+        alertPlaceholder.appendChild(alertDiv);
+
+        // Opcional: Cerrar automáticamente la alerta después de un tiempo
+        setTimeout(() => {
+            // Asegurarse de que Bootstrap esté cargado antes de intentar obtener la instancia
+            if (typeof bootstrap !== 'undefined' && bootstrap.Alert) {
+                const bootstrapAlert = bootstrap.Alert.getInstance(alertDiv); // Usar getInstance para evitar crear uno nuevo
+                if (bootstrapAlert) {
+                    bootstrapAlert.close();
+                }
+            } else {
+                // Si Bootstrap no está disponible, simplemente remover el elemento
+                alertDiv.remove();
+            }
+        }, 8000); // 8 segundos
+    }
+
     document.addEventListener('DOMContentLoaded', function () {
+        console.log("DOM completamente cargado. Inicializando Flatpickr y eventos.");
+
         // Inicialización de Flatpickr para los campos de fecha
-        // Esto convierte los campos de entrada de fecha en selectores de fecha amigables.
         flatpickr("#id_fecha_desde", {
-            locale: "es", // Establece el idioma a español
-            dateFormat: "Y-m-d", // Formato de fecha: Año-Mes-Día
-            altInput: true, // Muestra una entrada alternativa formateada para el usuario
-            altFormat: "d/m/Y", // Formato de la entrada alternativa: Día/Mes/Año
-            allowInput: true // Permite la entrada manual de la fecha
+            locale: "es",
+            dateFormat: "Y-m-d",
+            altInput: true,
+            altFormat: "d/m/Y",
+            allowInput: true
         });
         flatpickr("#id_fecha_hasta", {
             locale: "es",
@@ -475,49 +669,167 @@
             allowInput: true
         });
 
-        // Este es un ejemplo de cómo podrías hacer una petición AJAX si tus gráficos o datos
-        // necesitaran ser actualizados sin recargar la página completa.
-        // Actualmente, el formulario de filtro recarga la página, lo cual está bien para muchos dashboards.
-        // Si quisieras una actualización dinámica, necesitarías endpoints Django que devuelvan JSON.
+        const emailModalElement = document.getElementById('emailModal');
+        // **CAMBIO 2: Declarar y asignar la instancia del modal FUERA del event listener del botón.**
+        // Esto es crucial para poder acceder a ella desde cualquier parte del script,
+        // especialmente para ocultar el modal después de la solicitud AJAX.
+        let emailModalInstance;
 
-        // Ejemplo (comentado) de cómo enviar el formulario con AJAX y actualizar parte de la página:
-        /*
-        $('#filterForm').on('submit', function(e) {
-            e.preventDefault(); // Previene el envío normal del formulario
+        if (emailModalElement) {
+            emailModalInstance = new bootstrap.Modal(emailModalElement);
+            console.log("Modal de email inicializado.");
+        } else {
+            console.error("Error: Elemento con ID 'emailModal' no encontrado en el DOM. El modal no funcionará.");
+        }
 
-            const formData = $(this).serialize(); // Serializa los datos del formulario
+        const sendEmailButton = document.getElementById('sendEmailFromModalBtn');
+        const sendEmailBtnText = document.getElementById('sendEmailBtnText');
+        const sendEmailSpinner = document.getElementById('sendEmailSpinner');
+        const emailInput = document.getElementById('modal_email_destino_input');
+        const emailFeedback = document.getElementById('email_feedback');
 
-            $.ajax({
-                url: $(this).attr('action'), // La URL del formulario (en este caso, 'dashboard')
-                type: $(this).attr('method'), // El método del formulario (GET)
-                data: formData,
-                success: function(response) {
-                    // Si la petición es exitosa, puedes actualizar partes de la página
-                    // por ejemplo, reemplazar los divs de los gráficos y la tabla.
-                    // Esto requeriría que tu vista Django devuelva los HTML de los gráficos y la tabla.
-                    // $('div.chart-card:first').html($(response).find('div.chart-card:first').html());
-                    // $('div.table-card').html($(response).find('div.table-card').html());
-                    // Puedes necesitar un manejo más sofisticado para la paginación y mensajes.
-                    console.log("Datos actualizados con éxito!");
-                    // location.reload(); // Una forma sencilla de recargar después de AJAX si todo el contenido necesita ser refrescado
-                },
-                error: function(xhr, status, error) {
-                    console.error("Error al actualizar los datos:", error);
-                    // Manejo de errores
+
+        // MUY IMPORTANTE: Asegurarse de que el botón existe antes de adjuntar el listener
+        if (sendEmailButton && emailInput && emailFeedback) {
+            console.log("Elementos de botón y campo de correo encontrados. Adjuntando eventListener.");
+
+            sendEmailButton.addEventListener('click', function () {
+                console.log("¡Clic detectado en el botón 'Enviar Reporte'!");
+
+                var fechaInicio = document.getElementById('id_fecha_desde').value;
+                var fechaFin = document.getElementById('id_fecha_hasta').value;
+                var emailDestino = emailInput.value.trim(); // Usar .trim() para limpiar espacios
+
+                // Limpiar validaciones previas
+                emailInput.classList.remove('is-invalid');
+                emailFeedback.textContent = 'Por favor, introduce una dirección de correo electrónico válida.';
+
+
+                console.log("Valores obtenidos del formulario:", {
+                    fechaInicio,
+                    fechaFin,
+                    emailDestino
+                });
+
+                // Validación de campos
+                if (!fechaInicio || !fechaFin) {
+                    showCustomAlert('Por favor, selecciona las fechas de "Fecha Desde" y "Fecha Hasta" para el reporte.', 'danger');
+                    // **CAMBIO 3: Asegurarse de cerrar el modal si las fechas no están seleccionadas**
+                    // Esto evita que el usuario quede "atrapado" con el modal abierto y un mensaje que no lo cierra.
+                    if (emailModalInstance) {
+                        emailModalInstance.hide();
+                    }
+                    return; // Detener la ejecución si la validación falla
                 }
-            });
-        });
-        */
-    });
 
-    // Función de ayuda para obtener el atributo de un objeto Django en el template
-    // Esto se utiliza en la tabla para acceder dinámicamente a los valores de los campos.
-    // Aunque en Django es más común usar 'item.field_name' directamente o un filtro personalizado.
-    // Aquí se ha agregado una solución para 'item|getattribute:field_name' en el template.
-    // Para que esto funcione, necesitarías un filtro de plantilla personalizado en Django.
-    // Por ejemplo, en tu 'templatetags/app_tags.py':
-    // @register.filter
-    // def getattribute(value, arg):
-    //     return getattr(value, arg)
+                if (!emailDestino) {
+                    emailInput.classList.add('is-invalid');
+                    emailFeedback.textContent = 'El correo electrónico no puede estar vacío.';
+                    return;
+                }
+
+                if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailDestino)) {
+                    emailInput.classList.add('is-invalid');
+                    emailFeedback.textContent = 'Formato de correo electrónico inválido.';
+                    return;
+                }
+
+                // Deshabilitar botón y mostrar spinner
+                sendEmailButton.disabled = true;
+                sendEmailBtnText.style.display = 'none';
+                sendEmailSpinner.style.display = 'inline-block';
+
+                var ciudad = document.getElementById('id_ciudad').value;
+                var vendedor = document.getElementById('id_vendedor').value;
+                var marca = document.getElementById('id_marca').value;
+                var estadoDocumento = document.getElementById('id_estado_documento').value;
+
+                var postData = {
+                    fecha_desde: fechaInicio,
+                    fecha_hasta: fechaFin,
+                    to_email: emailDestino,
+                    ciudad: ciudad,
+                    vendedor: vendedor,
+                    marca: marca,
+                    estado_documento: estadoDocumento,
+                };
+
+                console.log("Datos que se enviarán:", postData);
+
+                fetch('{% url "export_report_email" %}', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': '{{ csrf_token }}'
+                    },
+                    body: JSON.stringify(postData)
+                })
+                    .then(response => {
+                        console.log("Respuesta de la red recibida:", response);
+                        // **CAMBIO 4: Manejo más robusto de la respuesta HTTP**
+                        // Siempre intenta parsear JSON, pero maneja errores si la respuesta no es JSON válida
+                        if (!response.ok) {
+                            return response.json().then(err => {
+                                // Si la respuesta es JSON y contiene un mensaje de error
+                                throw new Error(`HTTP error! status: ${response.status}, message: ${err.message || 'Error desconocido del servidor.'}`);
+                            }).catch(() => {
+                                // Si la respuesta no es JSON o falla el parseo, pero la respuesta no es 2xx
+                                throw new Error(`HTTP error! status: ${response.status}. El servidor respondió con un error y no se pudo obtener un mensaje detallado.`);
+                            });
+                        }
+                        return response.json(); // Solo parsea a JSON si la respuesta es OK
+                    })
+                    .then(data => {
+                        console.log("Datos de la respuesta (JSON parseado):", data);
+                        // Habilitar botón y restaurar texto
+                        sendEmailButton.disabled = false;
+                        sendEmailBtnText.style.display = 'inline';
+                        sendEmailSpinner.style.display = 'none';
+
+                        // **CAMBIO 5: Lógica para CERRAR EL MODAL y MOSTRAR ALERTA**
+                        // Esto se ejecuta SÓLO si la promesa `fetch` se resuelve correctamente (respuesta 2xx)
+                        if (emailModalInstance) {
+                            emailModalInstance.hide(); // Ocultar el modal de Bootstrap
+                            console.log("Modal de email cerrado.");
+                        } else {
+                            console.warn("Intento de cerrar modal, pero la instancia no fue encontrada.");
+                        }
+
+                        if (data.status === 'success') {
+                            showCustomAlert('El reporte ha sido solicitado exitosamente y se enviará a ' + emailDestino + '. Por favor, revisa tu bandeja de entrada en unos minutos.', 'success');
+                            emailInput.value = ''; // Limpiar el campo de email del modal
+                            emailInput.classList.remove('is-invalid'); // Limpiar estado de validación
+                        } else {
+                            // Si la vista de Django devuelve 'success: false' dentro de un 200 OK
+                            showCustomAlert('Error al solicitar la generación del reporte: ' + (data.message || 'Error desconocido.'), 'danger');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error capturado en .catch():', error);
+                        // Habilitar botón y restaurar texto
+                        sendEmailButton.disabled = false;
+                        sendEmailBtnText.style.display = 'inline';
+                        sendEmailSpinner.style.display = 'none';
+
+                        // **CAMBIO 6: Asegurarse de que el modal se cierre incluso en caso de error AJAX**
+                        // Es una buena práctica para no dejar al usuario con el modal bloqueado.
+                        if (emailModalInstance) {
+                            emailModalInstance.hide();
+                            console.log("Modal de email cerrado debido a un error.");
+                        } else {
+                            console.warn("Intento de cerrar modal por error, pero la instancia no fue encontrada.");
+                        }
+                        emailInput.classList.remove('is-invalid'); // Limpiar estado de validación
+
+                        showCustomAlert('Ocurrió un error al intentar enviar la solicitud de reporte: ' + error.message, 'danger');
+                    });
+            });
+        } else {
+            console.error("Error: Algunos elementos necesarios para el botón de envío de email no se encontraron en el DOM.");
+            if (!sendEmailButton) console.error(" - 'sendEmailFromModalBtn' no encontrado.");
+            if (!emailInput) console.error(" - 'modal_email_destino_input' no encontrado.");
+            if (!emailFeedback) console.error(" - 'email_feedback' no encontrado.");
+        }
+    });
 </script>
 {% endblock %}

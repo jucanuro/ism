@@ -53,6 +53,7 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
 
+    'django_ses',
     'reportes',
     'crispy_forms',
     'crispy_bootstrap5',
@@ -165,3 +166,19 @@ Q_CLUSTER = {
     'orm': 'default',
     'sync': os.getenv('DJANGO_DEBUG', 'True').lower() == 'true', 
 }
+
+# Configuración de SES
+EMAIL_BACKEND = 'django_ses.SESBackend'
+DEFAULT_FROM_EMAIL = 'jucanuro.inversiones@gmail.com' # Tu correo verificado en us-east-2
+SERVER_EMAIL = DEFAULT_FROM_EMAIL
+
+
+AWS_SES_REGION_NAME = os.environ.get('AWS_REGION_NAME', 'us-east-2') # <-- ¡Esta variable es la que necesita django-ses para el endpoint!
+AWS_SES_REGION_ENDPOINT = f'email.{AWS_SES_REGION_NAME}.amazonaws.com' # ¡Ahora AWS_SES_REGION_NAME ya está definida!
+
+
+AWS_ACCESS_KEY_ID = os.environ.get('AWS_ACCESS_KEY_ID')
+AWS_SECRET_ACCESS_KEY = os.environ.get('AWS_SECRET_ACCESS_KEY')
+
+AWS_SQS_EXCEL_EXPORT_QUEUE_URL = 'https://sqs.us-east-2.amazonaws.com/876052952825/excel-generation-queue' 
+
